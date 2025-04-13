@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Luoghi Di San Polo</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBMqF5qQPuT-lZQA2782_qcHV5BqBm_SJo"></script>
+    <script>
+        let map;
+        let userMarker;
+        let firstUpdate = true;
+
+        function initMap() {
+            var sanPolo = { lat: 45.5076, lng: 10.2623 }; // Punto centrale
+
+            // Mappa senza nomi di edifici, bar, ristoranti, ecc.
+            map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 15,
+                center: sanPolo,
+                styles: [
+                    { elementType: "labels", stylers: [{ visibility: "off" }] },
+                    { featureType: "poi", stylers: [{ visibility: "off" }] },
+                    { featureType: "road", stylers: [{ visibility: "off" }] },
+                    { featureType: "transit", stylers: [{ visibility: "off" }] },
+                    { featureType: "administrative", stylers: [{ visibility: "off" }] },
+                    { featureType: "landscape", stylers: [{ visibility: "on" }] },
+                    { featureType: "water", stylers: [{ visibility: "on" }] }
+                ]
+            });
+
+            // Luoghi principali
+            var locations = [
+                {
+                    lat: 45.51639, lng: 10.26639,
+                    name: "Stazione Metro Sanpolino",
+                    img: "https://upload.wikimedia.org/wikipedia/commons/c/c7/Sanpolino_stazione_metro_lato_corso_Bazoli_20210912.jpg"
+                },
+                {
+                    lat: 45.5121, lng: 10.2625,
+                    name: "Parco Peppino Impastato",
+                    img: "https://lh3.googleusercontent.com/gps-cs-s/AB5caB8Ko43y4dkgt9-9BkGM6zpE0ffBRzqLi7tNJ3yvdnPmnnQY47CZ8rejqRmNZ05CbxGxsj6f2gre8MP0rzRxbaEfbnUUtlwfWpp8L-nNh9yhZdhnTJNp6l3ARrjw3_RghsGAAJUh5g=s1024-v1"
+                },
+                {
+                    lat: 45.5064, lng: 10.2653,
+                    name: "Parco delle Cave",
+                    img: "https://www.xtremeadventure.it/wp-content/uploads/2022/01/Parco-delle-Cave-di-Brescia-2-768x551.jpg"
+                },
+                {
+                    lat: 45.5126, lng: 10.2607,
+                    name: "Chiesa San Girolamo",
+                    img: "https://www.beweb.chiesacattolica.it/VisualizzaImmagine.do?sercd=48723&tipo=M4&fixedside=height&prog=1&statoinv=V&contesto=chiese"
+                },
+                {
+                    lat: 45.5093, lng: 10.2537,
+                    name: "Ex Chiesa San Polo",
+                    img: "data:image/jpeg;base64,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"
+                },
+                {
+                    lat: 45.5108, lng: 10.2531,
+                    name: "Chiesa Conversione",
+                    img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQaGvALGcUCVH1AoOiE8_BRe3_Gt82hUrVVQA&s"
+                },
+                {
+                    lat: 45.5124, lng: 10.2352,
+                    name: "Cascina Maggia",
+                    img: "data:image/jpeg;base64,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"
+                },
+                {
+                    lat: 45.5151, lng: 10.2385,
+                    name: "Cascina Riscatto",
+                    img: "https://www.quibrescia.it/photogallery_new/images/2022/07/cascina-riscatto-facciata-anteriore-567847.jpg"
+                },
+                {
+                    lat: 45.5135, lng: 10.2434,
+                    name: "Museo Martino Dolci",
+                    img: "https://www.vinicucinabresciana.it/wp-content/uploads/2023/11/Vini-Cucina-Bresciana-Museo-Dolci-foto-Marioli-10-1170x778.jpg"
+                },
+                {
+                    lat: 45.5183, lng: 10.2578,
+                    name: "Chiesa Sant'Angela Merici",
+                    img: "https://yt3.googleusercontent.com/ytc/AIdro_mNsLmoiiihkBd7ny7P0gL2VGC2US2rDicO4MIsBtMATg=s900-c-k-c0x00ffffff-no-rj"
+                },
+                {
+                    lat: 45.5182, lng: 10.2583,
+                    name: "Stazione Metro San Polo",
+                    img: "https://upload.wikimedia.org/wikipedia/commons/0/09/San_Polo_tettoia_ingresso_dir_Prealpino_20210917.jpg"
+                },
+                {
+                    lat: 45.5079, lng: 10.2637,
+                    name: "Cotonificio Schiannini",
+                    img: "https://artiera.it/2023/04/11/tra-pastato-e-futuro-fiera-dellartigianato-e-lex-cotonificio-di-udine/"
+                },
+                {
+                    lat: 45.5146, lng: 10.2684,
+                    name: "Street Art Sanpolino",
+                    img: "https://citynews-bresciatoday.stgy.ovh/~media/original-hi/53827713571161/original_95d1eb82-32c2-4253-8093-82b7bdf7f50c_img20240812210218.jpg"
+                }
+            ];
+
+            locations.forEach(function(location) {
+                var marker = new google.maps.Marker({
+                    position: { lat: location.lat, lng: location.lng },
+                    map: map,
+                    title: location.name
+                });
+
+                var infoWindow = new google.maps.InfoWindow({
+                    content: `<div style="text-align: center;">
+                                <h3>${location.name}</h3>
+                                <img src="${location.img}" alt="${location.name}" style="width:200px; height:auto;">
+                              </div>`
+                });
+
+                marker.addListener("click", function() {
+                    infoWindow.open(map, marker);
+                });
+            });
+
+            trackUserLocation();
+        }
+
+        function trackUserLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition(
+                    function (position) {
+                        var pos = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+
+                        if (userMarker) {
+                            userMarker.setPosition(pos);
+                        } else {
+                            userMarker = new google.maps.Marker({
+                                position: pos,
+                                map: map,
+                                title: "Sei qui!",
+                                icon: { url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png" }
+                            });
+                        }
+
+                        if (firstUpdate) {
+                            map.setCenter(pos);
+                            firstUpdate = false;
+                        }
+                    },
+                    function (error) {
+                        let errorMessage;
+                        switch (error.code) {
+                            case error.PERMISSION_DENIED:
+                                errorMessage = "Permesso di localizzazione negato. Abilitalo dalle impostazioni del browser.";
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                errorMessage = "Posizione non disponibile.";
+                                break;
+                            case error.TIMEOUT:
+                                errorMessage = "Tempo scaduto per ottenere la posizione.";
+                                break;
+                            default:
+                                errorMessage = "Errore sconosciuto.";
+                        }
+                        document.getElementById("error-message").innerText = errorMessage;
+                    },
+                    { enableHighAccuracy: true, maximumAge: 1000 } // Maggiore precisione
+                );
+            } else {
+                document.getElementById("error-message").innerText = "Il tuo browser non supporta la geolocalizzazione.";
+            }
+        }
+    </script>
+</head>
+<body onload="initMap()">
+    <h2>Mappa Interattiva di San Polo</h2>
+    <div id="map" style="height: 500px; width: 100%;"></div>
+    <div id="error-message" style="color: red; margin-top: 10px;"></div>
+</body>
+</html>
