@@ -11,7 +11,6 @@
         function initMap() {
             var sanPolo = { lat: 45.5076, lng: 10.2623 }; // Punto centrale
 
-            // Mappa senza nomi di edifici, bar, ristoranti, ecc.
             map = new google.maps.Map(document.getElementById("map"), {
                 zoom: 15,
                 center: sanPolo,
@@ -26,7 +25,6 @@
                 ]
             });
 
-            // Luoghi principali
             var locations = [
                 {
                     lat: 45.51639, lng: 10.26639,
@@ -76,17 +74,17 @@
 		        {
                     lat: 45.5025, lng: 10.2539,
                     name: "Borgo",
-                    img: "" // Se hai una foto, inserisci il link qui
+                    img: ""
     		    },
     		    {
                    lat: 45.5036, lng: 10.2535,
         	       name: "Mulino",
-        	       img: "" // Se hai una foto, inserisci il link qui
+        	       img: ""
     		    },
     		    {
         	       lat: 45.5040, lng: 10.2560,
         	       name: "Portale",
-        	       img: "" // Se hai una foto, inserisci il link qui
+        	       img: ""
     		    },
                 {
                     lat: 45.5183, lng: 10.2578,
